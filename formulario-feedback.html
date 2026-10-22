@@ -17,9 +17,9 @@
 
     <div class="privacy-notice">
       <p><strong>Aviso de privacidade.</strong> Estes dados são coletados por [SEU NOME/CONTATO AQUI]
-      apenas para um trabalho acadêmico de validação de produto, usando o Formspree
-      (empresa sediada nos EUA) para recebê-los por e-mail. Ficam guardados só até a
-      entrega do trabalho. Para pedir exclusão antes disso, use [SEU E-MAIL/CONTATO AQUI].</p>
+      apenas para um trabalho acadêmico de validação de produto, e ficam numa planilha do
+      Google Sheets de uso pessoal. Ficam guardados só até a entrega do trabalho. Para pedir
+      exclusão antes disso, use [SEU E-MAIL/CONTATO AQUI].</p>
     </div>
 
     <div class="card">
@@ -27,7 +27,7 @@
         Este formulário envia pro mesmo Google Apps Script do formulário 1,
         só que grava numa aba separada da planilha (ver APPS_SCRIPT.md).
       -->
-      <form id="form-feedback">
+      <form id="form-feedback" method="POST" action="https://script.google.com/a/macros/a.fecaf.com.br/s/AKfycbzKjmq3tI9USjrKoL9qE_wJWt4NSmuYs5z70ShahjIplXd_QirzWDaCxRMFLMIElMY/exec" target="frame-feedback">
         <input type="hidden" name="Formulario" value="Feedback">
 
         <div>
@@ -90,28 +90,27 @@
     </div>
   </div>
 
-  <script>
-    // Troque pela URL do seu Web App do Apps Script (ver APPS_SCRIPT.md)
-    var APPS_SCRIPT_URL = 'https://script.google.com/a/macros/a.fecaf.com.br/s/AKfycbzKjmq3tI9USjrKoL9qE_wJWt4NSmuYs5z70ShahjIplXd_QirzWDaCxRMFLMIElMY/exec';
+  <!--
+    Envio "clássico" (sem fetch) direcionado a este iframe escondido.
+    É assim que o Apps Script recebe corretamente um POST.
+  -->
+  <iframe name="frame-feedback" style="display:none"></iframe>
 
-    document.getElementById('form-feedback').addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      var form = ev.target;
-      var btn = document.getElementById('btn-enviar');
+  <script>
+    var submitted = false;
+    var form = document.getElementById('form-feedback');
+    var btn = document.getElementById('btn-enviar');
+
+    form.addEventListener('submit', function () {
+      submitted = true;
       btn.textContent = 'Enviando...';
       btn.disabled = true;
+    });
 
-      fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: new FormData(form),
-        mode: 'no-cors'
-      }).then(function () {
+    document.querySelector('iframe[name="frame-feedback"]').addEventListener('load', function () {
+      if (submitted) {
         window.location.href = 'obrigado-feedback.html';
-      }).catch(function () {
-        alert('Não consegui enviar agora. Confira sua conexão e tente de novo.');
-        btn.textContent = 'Enviar feedback';
-        btn.disabled = false;
-      });
+      }
     });
   </script>
 </body>

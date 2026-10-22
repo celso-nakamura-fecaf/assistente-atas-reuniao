@@ -18,8 +18,8 @@
 
     <div class="privacy-notice">
       <p><strong>Aviso de privacidade.</strong> Estes dados são coletados por [SEU NOME/CONTATO AQUI]
-      apenas para um trabalho acadêmico de validação de produto, usando o Formspree
-      (empresa sediada nos EUA) para recebê-los por e-mail.</p>
+      apenas para um trabalho acadêmico de validação de produto, e ficam numa planilha do
+      Google Sheets de uso pessoal.</p>
       <p><strong>Não inclua</strong> nomes de clientes, colegas, valores ou qualquer
       informação interna/confidencial da sua empresa — descreva a reunião de forma
       genérica (ex.: "decidimos adiar a entrega do projeto" em vez de citar nomes).</p>
@@ -32,7 +32,7 @@
         Este formulário envia pra um Google Apps Script (ver APPS_SCRIPT.md).
         Troque a URL abaixo pela URL do seu Web App depois de implantá-lo.
       -->
-      <form id="form-reuniao">
+      <form id="form-reuniao" method="POST" action="https://script.google.com/a/macros/a.fecaf.com.br/s/AKfycbzKjmq3tI9USjrKoL9qE_wJWt4NSmuYs5z70ShahjIplXd_QirzWDaCxRMFLMIElMY/exec" target="frame-reuniao">
         <input type="hidden" name="Formulario" value="Reuniao">
 
         <div>
@@ -69,29 +69,30 @@
     </div>
   </div>
 
-  <script>
-    // Troque pela URL do seu Web App do Apps Script (ver APPS_SCRIPT.md)
-    var APPS_SCRIPT_URL = 'https://script.google.com/a/macros/a.fecaf.com.br/s/AKfycbzKjmq3tI9USjrKoL9qE_wJWt4NSmuYs5z70ShahjIplXd_QirzWDaCxRMFLMIElMY/exec';
+  <!--
+    Envio "clássico" (sem fetch) direcionado a este iframe escondido.
+    É assim que o Apps Script recebe corretamente um POST — por fetch,
+    o redirecionamento interno do Google troca o POST por GET e os
+    dados se perdem.
+  -->
+  <iframe name="frame-reuniao" style="display:none"></iframe>
 
-    document.getElementById('form-reuniao').addEventListener('submit', function (ev) {
-      ev.preventDefault();
-      var form = ev.target;
-      var btn = document.getElementById('btn-enviar');
+  <script>
+    var submitted = false;
+    var form = document.getElementById('form-reuniao');
+    var btn = document.getElementById('btn-enviar');
+
+    form.addEventListener('submit', function () {
+      submitted = true;
       btn.textContent = 'Enviando...';
       btn.disabled = true;
+      // não chama preventDefault — o formulário submete normalmente pro iframe
+    });
 
-      fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        body: new FormData(form),
-        mode: 'no-cors'
-      }).then(function () {
+    document.querySelector('iframe[name="frame-reuniao"]').addEventListener('load', function () {
+      if (submitted) {
         window.location.href = 'obrigado-reuniao.html';
-      }).catch(function () {
-        // "no-cors" não deixa ler o status real; se cair aqui, foi erro de rede
-        alert('Não consegui enviar agora. Confira sua conexão e tente de novo.');
-        btn.textContent = 'Enviar e receber minha ata';
-        btn.disabled = false;
-      });
+      }
     });
   </script>
 </body>

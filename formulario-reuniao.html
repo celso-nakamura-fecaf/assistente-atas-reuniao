@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enviar reunião</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <div class="wrap">
+    <a class="back-link" href="index.html">← voltar</a>
+    <span class="badge">Passo 1 de 2</span>
+    <h1>Conte o que aconteceu na sua reunião</h1>
+    <p class="lead">
+      Cole um resumo do que foi discutido e decidido — não precisa ser formal,
+      pode ser do jeito que você lembra.
+    </p>
+
+    <div class="privacy-notice">
+      <p><strong>Aviso de privacidade.</strong> Estes dados são coletados por [SEU NOME/CONTATO AQUI]
+      apenas para um trabalho acadêmico de validação de produto, usando o Formspree
+      (empresa sediada nos EUA) para recebê-los por e-mail.</p>
+      <p><strong>Não inclua</strong> nomes de clientes, colegas, valores ou qualquer
+      informação interna/confidencial da sua empresa — descreva a reunião de forma
+      genérica (ex.: "decidimos adiar a entrega do projeto" em vez de citar nomes).</p>
+      <p>Os dados ficam guardados só até a entrega do trabalho e são excluídos depois.
+      Para pedir a exclusão antes disso, entre em contato em [SEU E-MAIL/CONTATO AQUI].</p>
+    </div>
+
+    <div class="card">
+      <!--
+        Este formulário envia pra um Google Apps Script (ver APPS_SCRIPT.md).
+        Troque a URL abaixo pela URL do seu Web App depois de implantá-lo.
+      -->
+      <form id="form-reuniao">
+        <input type="hidden" name="Formulario" value="Reuniao">
+
+        <div>
+          <label for="contato">Seu contato (WhatsApp, Instagram ou e-mail)</label>
+          <input type="text" id="contato" name="Contato" placeholder="Ex: (xx) xxxxx-xxxx ou @seuinsta" required>
+          <p class="hint">É por aqui que você vai receber a ata gerada.</p>
+        </div>
+
+        <div>
+          <label for="resumo">O que foi discutido e decidido na reunião?</label>
+          <textarea id="resumo" name="Resumo da reunião" placeholder="Ex: conversamos sobre o cronograma de um projeto, decidimos adiar a entrega pra semana que vem, alguém ficou responsável por avisar..." required></textarea>
+          <p class="hint">⚠️ Não escreva nomes de pessoas, clientes ou dados internos — descreva de forma genérica.</p>
+        </div>
+
+        <div>
+          <label for="tipo">Que tipo de reunião foi essa? (opcional)</label>
+          <select id="tipo" name="Tipo de reunião">
+            <option value="">Prefiro não dizer</option>
+            <option value="Status/acompanhamento">Status / acompanhamento</option>
+            <option value="Planejamento">Planejamento</option>
+            <option value="Alinhamento de equipe">Alinhamento de equipe</option>
+            <option value="Outra">Outra</option>
+          </select>
+        </div>
+
+        <label class="consent">
+          <input type="checkbox" name="Consentimento" value="Sim" required>
+          <span>Li o aviso de privacidade acima e concordo em enviar essas informações
+          apenas para os fins deste trabalho acadêmico.</span>
+        </label>
+
+        <button type="submit" id="btn-enviar">Enviar e receber minha ata</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Troque pela URL do seu Web App do Apps Script (ver APPS_SCRIPT.md)
+    var APPS_SCRIPT_URL = 'https://script.google.com/a/macros/a.fecaf.com.br/s/AKfycbzKjmq3tI9USjrKoL9qE_wJWt4NSmuYs5z70ShahjIplXd_QirzWDaCxRMFLMIElMY/exec';
+
+    document.getElementById('form-reuniao').addEventListener('submit', function (ev) {
+      ev.preventDefault();
+      var form = ev.target;
+      var btn = document.getElementById('btn-enviar');
+      btn.textContent = 'Enviando...';
+      btn.disabled = true;
+
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        body: new FormData(form),
+        mode: 'no-cors'
+      }).then(function () {
+        window.location.href = 'obrigado-reuniao.html';
+      }).catch(function () {
+        // "no-cors" não deixa ler o status real; se cair aqui, foi erro de rede
+        alert('Não consegui enviar agora. Confira sua conexão e tente de novo.');
+        btn.textContent = 'Enviar e receber minha ata';
+        btn.disabled = false;
+      });
+    });
+  </script>
+</body>
+</html>
